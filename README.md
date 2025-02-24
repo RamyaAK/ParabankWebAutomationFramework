@@ -21,17 +21,6 @@ ParabankWebAutomationFramework is a **test automation framework** designed for a
 - **Version Control**: Git & GitHub  
 - **CI/CD**: Jenkins  
 
-## 🏗️ Project Structure  
-ParabankWebAutomationFramework
-│── src/main/java/com/parabank/pages # Page classes
-│── src/main/java/com/parabank/utils # Utility classes
-│── src/test/java/com/parabank/tests # Test classes
-│── src/test/resources/testdata # Test data files
-│── pom.xml # Maven dependencies
-│── testng.xml # TestNG suite configuration
-│── README.md # Project documentation
-
-
 ## ⚡ Prerequisites  
 - Java 8+ installed  
 - Maven installed (`mvn -version` to check)  

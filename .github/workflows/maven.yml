@@ -12,34 +12,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Chrome
-        run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
-          echo 'deb [signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          sudo apt update
-          sudo apt install google-chrome-stable
-          
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Remove Existing Chrome (if any)
+      - name: Set up Chrome and Install ChromeDriver
         run: |
-          sudo apt purge -y google-chrome-stable || true
-          sudo apt autoremove -y
-
-      - name: Install Latest Chrome Version
-        run: |
+          # Install Chrome
           sudo apt update
-          sudo apt install -y curl
-          curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+          sudo apt install -y wget curl unzip gnupg
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
           sudo apt update
           sudo apt install -y google-chrome-stable
           
-          google-chrome --version
-
-      - name: Install Matching ChromeDriver
-        run: |
+          # Get Chrome version and download matching ChromeDriver
           CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
           CHROME_MAJOR_VERSION=$(echo "$CHROME_VERSION" | cut -d'.' -f1)
 
@@ -48,7 +34,7 @@ jobs:
 
           CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION")
 
-          # Check if the requested ChromeDriver version exists
+          # If the requested ChromeDriver version doesn't exist, fall back to the latest version
           if [[ -z "$CHROMEDRIVER_VERSION" || "$CHROMEDRIVER_VERSION" == *"Error"* ]]; then
             echo "No matching ChromeDriver found for Chrome version $CHROME_VERSION. Falling back to latest version."
             CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE")

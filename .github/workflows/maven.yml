@@ -19,7 +19,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    ssteps:
+    steps:
       # Check out the repository
       - name: Checkout code
         uses: actions/checkout@v3

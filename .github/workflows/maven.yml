@@ -1,4 +1,3 @@
-
 name: Maven CI
 
 on:
@@ -14,32 +13,70 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'adoptopenjdk'
+      - name: Set up Chrome and Install ChromeDriver
+        run: |
+          # Install Chrome
+          sudo apt update
+          sudo apt install -y wget curl unzip gnupg
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt update
+          sudo apt install -y google-chrome-stable
+          
+          # Get Chrome version and download matching ChromeDriver
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+          CHROME_MAJOR_VERSION=$(echo "$CHROME_VERSION" | cut -d'.' -f1)
 
-    - name: Cache Maven dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+          echo "Installed Chrome version: $CHROME_VERSION"
+          echo "Chrome major version: $CHROME_MAJOR_VERSION"
 
-    - name: Build with Maven
-      run: mvn clean install -DskipTests=true
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION")
 
-    - name: Run tests with Maven
-      run: mvn test
+          # If the requested ChromeDriver version doesn't exist, fall back to the latest version
+          if [[ -z "$CHROMEDRIVER_VERSION" || "$CHROMEDRIVER_VERSION" == *"Error"* ]]; then
+            echo "No matching ChromeDriver found for Chrome version $CHROME_VERSION. Falling back to latest version."
+            CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
+          fi
 
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: target/surefire-reports/
+          echo "Downloading ChromeDriver version: $CHROMEDRIVER_VERSION"
+          wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+
+          if [[ ! -f "chromedriver_linux64.zip" ]]; then
+            echo "Error: ChromeDriver download failed."
+            exit 1
+          fi
+
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+          chromedriver --version
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: mvn clean install -DskipTests=true
+
+      - name: Run tests with Maven
+        run: mvn test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4  # Updated to v4 to fix deprecation issue
+        with:
+          name: test-results
+          path: target/surefire-reports/

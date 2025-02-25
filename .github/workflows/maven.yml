@@ -23,25 +23,26 @@ jobs:
 
       - name: Install ChromeDriver
         run: |
-          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d'.' -f1)
-          echo "Detected Chrome version: $CHROME_VERSION"
+          # Get full Chrome version (e.g., 120.0.6099.199)
+          CHROME_VERSION=$(google-chrome --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+          echo "Full Chrome version: $CHROME_VERSION"
 
-          if [ -z "$CHROME_VERSION" ]; then
-            echo "Error: Unable to detect Chrome version."
-            exit 1
-          fi
+          # Get major version (e.g., 120)
+          CHROME_MAJOR_VERSION=$(echo "$CHROME_VERSION" | cut -d'.' -f1)
+          echo "Chrome major version: $CHROME_MAJOR_VERSION"
 
-          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          # Get the corresponding ChromeDriver version
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION")
           
-          if [ -z "$CHROMEDRIVER_VERSION" ]; then
-            echo "Error: Unable to find a matching ChromeDriver version."
+          if [[ -z "$CHROMEDRIVER_VERSION" ]]; then
+            echo "Error: No matching ChromeDriver found for Chrome version $CHROME_VERSION"
             exit 1
           fi
 
           echo "Downloading ChromeDriver version: $CHROMEDRIVER_VERSION"
           wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
 
-          if [ ! -f "chromedriver_linux64.zip" ]; then
+          if [[ ! -f "chromedriver_linux64.zip" ]]; then
             echo "Error: ChromeDriver download failed."
             exit 1
           fi

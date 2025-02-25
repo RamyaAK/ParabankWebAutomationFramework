@@ -3,6 +3,7 @@ package para_bank_client.base;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import pages.HomePage;
@@ -23,10 +24,16 @@ public class BaseTest {
     @BeforeClass
     public void setup() {
         WebDriverManager.chromedriver().setup();
-        ChromeDriver driver = new ChromeDriver();
-        this.driver = driver;
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--user-data-dir=" + System.getProperty("java.io.tmpdir") + "/chrome_profile");
+        options.addArguments("--disable-dev-shm-usage");  // Helps in Docker/Linux environments
+        options.addArguments("--no-sandbox"); // Helps in CI/CD pipelines
+
+        // Initialize the driver with options
+        this.driver = new ChromeDriver(options);
+
         initializePageObjects();
-        launchUrl(driver);
+        launchUrl((ChromeDriver) driver);
     }
 
 

@@ -48,9 +48,10 @@ jobs:
 
           CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION")
 
-          if [[ -z "$CHROMEDRIVER_VERSION" ]]; then
-            echo "Error: No matching ChromeDriver found for Chrome version $CHROME_VERSION"
-            exit 1
+          # Check if the requested ChromeDriver version exists
+          if [[ -z "$CHROMEDRIVER_VERSION" || "$CHROMEDRIVER_VERSION" == *"Error"* ]]; then
+            echo "No matching ChromeDriver found for Chrome version $CHROME_VERSION. Falling back to latest version."
+            CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
           fi
 
           echo "Downloading ChromeDriver version: $CHROMEDRIVER_VERSION"

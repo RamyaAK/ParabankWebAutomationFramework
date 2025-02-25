@@ -16,39 +16,31 @@ on:
     branches:
       - main  # Trigger on pull requests to the main branch
 
+
+yaml
+Copy
+Edit
 jobs:
   test:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
-
+    runs-on: ubuntu-latest
     steps:
-      # Check out the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Java (adjust version as needed)
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+      - name: Install Chrome
+        run: |
+          sudo apt update
+          sudo apt install -y google-chrome-stable
 
-      # Cache Maven dependencies to speed up builds
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-${{ runner.os }}-
+      - name: Install ChromeDriver
+        run: |
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d'.' -f1)
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+          chromedriver --version
 
-      # Run TestNG tests using Maven
-      - name: Run TestNG tests
+      - name: Run Tests
         run: mvn clean test
-
-      # (Optional) Upload TestNG test results as an artifact
-      - name: Upload TestNG test results
-        if: always()  # Upload even if tests fail
-        uses: actions/upload-artifact@v4  # Updated to v4
-        with:
-          name: testng-results
-          path: target/surefire-reports  # TestNG reports are typically generated here

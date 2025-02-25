@@ -1,15 +1,12 @@
-# This workflow will build a Java project with Maven and run TestNG tests.
-# For more information, see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
 name: CI/CD Pipeline for TestNG Tests
 
 on:
   push:
     branches:
-      - main  # Trigger on pushes to the main branch
+      - main
   pull_request:
     branches:
-      - main  # Trigger on pull requests to the main branch
+      - main
 
 jobs:
   test:
@@ -26,9 +23,29 @@ jobs:
 
       - name: Install ChromeDriver
         run: |
-          CHROME_VERSION=$(google-chrome --version | grep -oP '[0-9]+' | head -1)
-          LATEST_CHROMEDRIVER=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION)
-          wget https://chromedriver.storage.googleapis.com/$LATEST_CHROMEDRIVER/chromedriver_linux64.zip
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d'.' -f1)
+          echo "Detected Chrome version: $CHROME_VERSION"
+
+          if [ -z "$CHROME_VERSION" ]; then
+            echo "Error: Unable to detect Chrome version."
+            exit 1
+          fi
+
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          
+          if [ -z "$CHROMEDRIVER_VERSION" ]; then
+            echo "Error: Unable to find a matching ChromeDriver version."
+            exit 1
+          fi
+
+          echo "Downloading ChromeDriver version: $CHROMEDRIVER_VERSION"
+          wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+
+          if [ ! -f "chromedriver_linux64.zip" ]; then
+            echo "Error: ChromeDriver download failed."
+            exit 1
+          fi
+
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/local/bin/
           sudo chmod +x /usr/local/bin/chromedriver

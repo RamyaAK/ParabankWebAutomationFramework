@@ -12,6 +12,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt update
+          sudo apt install google-chrome-stable
+          
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -20,12 +27,14 @@ jobs:
           sudo apt purge -y google-chrome-stable || true
           sudo apt autoremove -y
 
-      - name: Install Chrome (Specific Version 120)
+      - name: Install Latest Chrome Version
         run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
-          echo 'deb [signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
           sudo apt update
-          sudo apt install -y google-chrome-stable=120.0.6099.199-1
+          sudo apt install -y curl
+          curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+          sudo apt update
+          sudo apt install -y google-chrome-stable
           
           google-chrome --version
 
@@ -45,14 +54,14 @@ jobs:
           fi
 
           echo "Downloading ChromeDriver version: $CHROMEDRIVER_VERSION"
-          wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" -O chromedriver.zip
+          wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
 
-          if [[ ! -f "chromedriver.zip" ]]; then
+          if [[ ! -f "chromedriver_linux64.zip" ]]; then
             echo "Error: ChromeDriver download failed."
             exit 1
           fi
 
-          unzip chromedriver.zip
+          unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/local/bin/
           sudo chmod +x /usr/local/bin/chromedriver
           chromedriver --version

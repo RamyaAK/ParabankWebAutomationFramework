@@ -1,6 +1,5 @@
 package para_bank_client.user_registration;
 
-import constants.UserDetails;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -11,7 +10,6 @@ import java.util.Map;
 
 public class NewUserRegistrationTests extends BaseTest {
 
-    UserDetails user = new UserDetails();
     private String firstName;
     private String lastName;
     private String address;
@@ -49,7 +47,7 @@ public class NewUserRegistrationTests extends BaseTest {
 
     @Test
     public void new_user_registrationTest(){
-        System.out.println(firstName);
+
         homePage.verifyUserOnRegistrationPage();
         String result=homePage.RegisterUserWith(firstName, lastName, address, city, state, zipCode, phoneNumber, ssn, username, password, confirm_password)
                 .verifyUserRegistrationSuccessful();

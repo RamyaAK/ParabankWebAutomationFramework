@@ -21,15 +21,20 @@ jobs:
           sudo apt purge -y google-chrome-stable || true
           sudo apt autoremove -y
 
-      - name: Install Stable Chrome Version
+      - name: Install Specific Chrome Version (120)
         run: |
-          wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_120.0.6099.199-1_amd64.deb
-          sudo dpkg -i google-chrome-stable_120.0.6099.199-1_amd64.deb
+          sudo apt update
+          sudo apt install -y curl
+          curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+          sudo apt update
+          sudo apt install -y google-chrome-stable=120.0.6099.199-1
+
           google-chrome --version
 
       - name: Install Matching ChromeDriver
         run: |
-          CHROME_VERSION=$(google-chrome --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
           CHROME_MAJOR_VERSION=$(echo "$CHROME_VERSION" | cut -d'.' -f1)
 
           echo "Installed Chrome version: $CHROME_VERSION"

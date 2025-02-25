@@ -16,25 +16,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Remove Existing Chrome (if any)
+        run: |
+          sudo apt purge -y google-chrome-stable || true
+          sudo apt autoremove -y
+
       - name: Install Stable Chrome Version
         run: |
-          sudo apt update
-          sudo apt remove -y google-chrome-stable || true  # Remove any existing version
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo dpkg -i google-chrome-stable_current_amd64.deb
+          wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_120.0.6099.199-1_amd64.deb
+          sudo dpkg -i google-chrome-stable_120.0.6099.199-1_amd64.deb
           google-chrome --version
 
-      - name: Install ChromeDriver
+      - name: Install Matching ChromeDriver
         run: |
-          # Get full Chrome version (e.g., 120.0.6099.199)
           CHROME_VERSION=$(google-chrome --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
-          echo "Full Chrome version: $CHROME_VERSION"
-
-          # Get major version (e.g., 120)
           CHROME_MAJOR_VERSION=$(echo "$CHROME_VERSION" | cut -d'.' -f1)
+
+          echo "Installed Chrome version: $CHROME_VERSION"
           echo "Chrome major version: $CHROME_MAJOR_VERSION"
 
-          # Fetch the correct ChromeDriver version
           CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION")
 
           if [[ -z "$CHROMEDRIVER_VERSION" ]]; then

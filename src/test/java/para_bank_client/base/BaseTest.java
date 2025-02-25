@@ -24,22 +24,11 @@ public class BaseTest {
     @BeforeClass
     public void setup() {
         WebDriverManager.chromedriver().setup();
-        ChromeOptions options = new ChromeOptions();
-
-        // Generate a unique user data directory using the current time
-        String userDataDir = System.getProperty("java.io.tmpdir") + "/chrome_profile_" + System.currentTimeMillis();  // Unique user data directory
-        options.addArguments("--user-data-dir=" + userDataDir);
-
-        options.addArguments("--disable-dev-shm-usage");  // Helps in Docker/Linux environments
-        options.addArguments("--no-sandbox"); // Helps in CI/CD pipelines
-
-        // Initialize the driver with options
-        this.driver = new ChromeDriver(options);
-
+        ChromeDriver driver = new ChromeDriver();
+        this.driver = driver;
         initializePageObjects();
-        launchUrl((ChromeDriver) driver);
+        launchUrl(driver);
     }
-
 
 
     // Load properties file once for reading user details from user.properties file

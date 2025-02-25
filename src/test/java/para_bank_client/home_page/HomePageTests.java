@@ -4,8 +4,8 @@ import org.testng.annotations.Test;
 import para_bank_client.base.BaseTest;
 
 public class HomePageTests extends BaseTest {
-    @Test
-    public void testUserOnHomePage(){
+    @Test(priority = 0)
+    public void testUserOnHomePage() {
         homePage.verifyOnWelcomePage();
     }
 }

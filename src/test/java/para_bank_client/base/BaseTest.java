@@ -19,11 +19,12 @@ public class BaseTest {
     protected HomePage homePage;
     protected LoginPage loginPage;
     protected NewUserRegistrationPage newUserRegistrationPage;
+
     @BeforeClass
-    public void setup(){
+    public void setup() {
         WebDriverManager.chromedriver().setup();
         ChromeDriver driver = new ChromeDriver();
-        this.driver=driver;
+        this.driver = driver;
         initializePageObjects();
         launchUrl(driver);
     }
@@ -41,6 +42,7 @@ public class BaseTest {
             throw new RuntimeException("Failed to load user.properties file");
         }
     }
+
     // Generic method to fetch property values
     public static String getProperty(String key) {
         return properties.getProperty(key);
@@ -58,9 +60,8 @@ public class BaseTest {
     }
 
     @AfterClass
-    public void teardown(){
+    public void teardown() {
         System.out.println("Closing the Tests, Thank you!");
-        driver.quit();
     }
 
 

@@ -1,14 +1,18 @@
 package para_bank_client.user_registration;
 
+import constants.UserDetails;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import para_bank_client.base.BaseTest;
+import utility.TestDataJsonManager;
 import utility.UserDataGenerator;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class NewUserRegistrationTests extends BaseTest {
+    UserDetails user = new UserDetails();
 
     private String firstName;
     private String lastName;
@@ -40,17 +44,22 @@ public class NewUserRegistrationTests extends BaseTest {
         this.username = testData.get("Username");
         this.password = testData.get("Password");
         this.confirm_password = testData.get("Password");
+        user.setUser_name(username);
+        user.setPasswordVal(password);
         // Optionally, print the generated data to verify
         System.out.println(testData);
     }
 
 
-    @Test
-    public void new_user_registrationTest(){
+    @Test(priority = 1)
+    public void new_user_registrationTest() throws IOException {
 
         homePage.verifyUserOnRegistrationPage();
-        String result=homePage.RegisterUserWith(firstName, lastName, address, city, state, zipCode, phoneNumber, ssn, username, password, confirm_password)
+        String result = homePage.RegisterUserWith(firstName, lastName, address, city, state, zipCode, phoneNumber, ssn, username, password, confirm_password)
                 .verifyUserRegistrationSuccessful();
-        Assert.assertEquals(result,"Your account was created successfully. You are now logged in.");
+        Assert.assertEquals(result, "Your account was created successfully. You are now logged in.");
+
+        // Save the credentials in JSON file
+        TestDataJsonManager.saveUserCredentials(username, password);
     }
 }

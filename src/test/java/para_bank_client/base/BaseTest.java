@@ -39,7 +39,6 @@ public class BaseTest {
     }
 
 
-
     // Load properties file once for reading user details from user.properties file
     static {
         properties = new Properties();

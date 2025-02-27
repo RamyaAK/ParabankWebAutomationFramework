@@ -1,19 +1,17 @@
-package para_bank_client.login;
+package para_bank_client.user_login;
 
-import constants.UserDetails;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import para_bank_client.base.BaseTest;
 import utility.TestDataJsonManager;
-import utility.UserDataGenerator;
 
 import java.io.IOException;
 import java.util.Map;
 
 
 public class LoginTests extends BaseTest {
-    UserDetails user = new UserDetails();
+
     private String savedUsername;
     private String savedPassword;
 

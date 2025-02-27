@@ -5,7 +5,7 @@ import org.openqa.selenium.WebDriver;
 
 public class LoginPage {
    private  WebDriver driver;
-   private By login_page_title = By.xpath("//h1[normalize-space()='Accounts Overview']");
+   private By login_page_title = By.tagName("p");
 
 
     public LoginPage(WebDriver driver) {

@@ -2,7 +2,7 @@ name: Scheduled Runner
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # Runs every minute
+    - cron: '30 3 * * *'  # Runs every day at 3:30 AM UTC (9 AM IST)
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -26,22 +26,27 @@ jobs:
           echo "Installing Google Chrome..."
           sudo apt-get install -y google-chrome-stable
           echo "Google Chrome installed successfully."
+          google-chrome --version  # Print version for debugging
 
       - name: Set up ChromeDriver
         run: |
           echo "Detecting installed Chrome version..."
-          CHROME_VERSION=$(google-chrome --version | grep -oP '[0-9]+' | head -1)
-          
+          FULL_VERSION=$(google-chrome --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+          CHROME_VERSION=$(echo "$FULL_VERSION" | cut -d '.' -f 1)
+
+          echo "Full Chrome version: $FULL_VERSION"
+          echo "Extracted Chrome major version: $CHROME_VERSION"
+
           if [ -z "$CHROME_VERSION" ]; then
             echo "Error: Chrome version could not be detected!"
             exit 1
           fi
-          
-          echo "Installed Chrome major version: $CHROME_VERSION"
+
+          echo "Fetching the latest compatible ChromeDriver version..."
           LATEST_RELEASE=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
-          
-          if [ -z "$LATEST_RELEASE" ]; then
-            echo "Error: Could not fetch the latest ChromeDriver version!"
+
+          if [[ "$LATEST_RELEASE" =~ ^\<\?xml ]]; then
+            echo "Error: ChromeDriver version not found for Chrome $CHROME_VERSION"
             exit 1
           fi
 

@@ -29,6 +29,6 @@ public class LoginTests extends BaseTest {
         System.out.println(savedPassword);
         String result = homePage.login_with(savedUsername, savedPassword)
                 .VerifyOnLoginPage();
-        Assert.assertEquals(result, "Accounts Overview");
+        Assert.assertEquals(result, "Experience the difference");
     }
 }

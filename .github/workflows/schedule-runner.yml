@@ -2,7 +2,7 @@ name: Scheduled Runner
 
 on:
   schedule:
-    - cron: '*/1 * * * *'   # Runs daily at 4 PM UTC (9:30 PM IST)
+    - cron: '*/1 * * * *'  # Runs every minute
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -16,8 +16,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # Java distribution
-          java-version: '20'  # Set the Java version you use
+          distribution: 'temurin'
+          java-version: '20'
 
       - name: Install Google Chrome
         run: |
@@ -30,20 +30,29 @@ jobs:
       - name: Set up ChromeDriver
         run: |
           echo "Detecting installed Chrome version..."
-          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f 1)
-          echo "Installed Chrome major version: $CHROME_VERSION"
+          CHROME_VERSION=$(google-chrome --version | grep -oP '[0-9]+' | head -1)
           
-          echo "Fetching the latest compatible ChromeDriver version..."
+          if [ -z "$CHROME_VERSION" ]; then
+            echo "Error: Chrome version could not be detected!"
+            exit 1
+          fi
+          
+          echo "Installed Chrome major version: $CHROME_VERSION"
           LATEST_RELEASE=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
           
           if [ -z "$LATEST_RELEASE" ]; then
-            echo "Error: Could not fetch the latest ChromeDriver version."
+            echo "Error: Could not fetch the latest ChromeDriver version!"
             exit 1
           fi
 
           echo "Downloading ChromeDriver version: $LATEST_RELEASE..."
-          curl -O "https://chromedriver.storage.googleapis.com/$LATEST_RELEASE/chromedriver_linux64.zip"
-          
+          wget -q "https://chromedriver.storage.googleapis.com/$LATEST_RELEASE/chromedriver_linux64.zip"
+
+          if [ ! -f chromedriver_linux64.zip ]; then
+            echo "Error: Failed to download ChromeDriver!"
+            exit 1
+          fi
+
           echo "Extracting ChromeDriver..."
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/local/bin/
@@ -53,5 +62,5 @@ jobs:
       - name: Run Tests
         run: |
           echo "Starting test execution..."
-          mvn test  # Adjust if using Gradle or a different test command
+          mvn test
           echo "Test execution completed."

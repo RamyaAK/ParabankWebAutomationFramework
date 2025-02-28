@@ -24,17 +24,17 @@ public class BaseTest {
     @BeforeClass
     public void setup() {
         WebDriverManager.chromedriver().setup();
-        ChromeDriver driver = new ChromeDriver();
+       // ChromeDriver driver = new ChromeDriver();
 
-/*
+
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--user-data-dir=/tmp/chrome-user-data-" + System.currentTimeMillis()); // Unique user data directory
         options.addArguments("--disable-dev-shm-usage"); // Helps in CI environments
         options.addArguments("--no-sandbox"); // Prevents permission issues
         options.addArguments("--headless=new"); // Run headless mode (optional)optional
-*/
 
-       // ChromeDriver driver = new ChromeDriver(options);
+
+        ChromeDriver driver = new ChromeDriver(options);
         this.driver = driver;
 
         initializePageObjects();

@@ -6,9 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import pages.HomePage;
-import pages.LoginPage;
-import pages.NewUserRegistrationPage;
+import pages.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,18 +18,23 @@ public class BaseTest {
     protected HomePage homePage;
     protected LoginPage loginPage;
     protected NewUserRegistrationPage newUserRegistrationPage;
+    protected AccountServicesPage accountServicesPage;
+    protected OpenNewAccountPage openNewAccountPage;
 
     @BeforeClass
     public void setup() {
         WebDriverManager.chromedriver().setup();
+        ChromeDriver driver = new ChromeDriver();
 
+/*
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--user-data-dir=/tmp/chrome-user-data-" + System.currentTimeMillis()); // Unique user data directory
         options.addArguments("--disable-dev-shm-usage"); // Helps in CI environments
         options.addArguments("--no-sandbox"); // Prevents permission issues
-        options.addArguments("--headless=new"); // Run headless mode (optional)
+        options.addArguments("--headless=new"); // Run headless mode (optional)optional
+*/
 
-        ChromeDriver driver = new ChromeDriver(options);
+       // ChromeDriver driver = new ChromeDriver(options);
         this.driver = driver;
 
         initializePageObjects();
@@ -65,6 +68,8 @@ public class BaseTest {
         homePage = new HomePage(driver);
         loginPage = new LoginPage(driver);
         newUserRegistrationPage = new NewUserRegistrationPage(driver);
+        accountServicesPage = new AccountServicesPage(driver);
+        openNewAccountPage = new OpenNewAccountPage(driver);
 
     }
 
